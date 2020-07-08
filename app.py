@@ -20,9 +20,10 @@ def index():
         f"Welcome!<br/>"
         f"Available Routes:<br/>"
         f"P1: /output1<br/>"
-        f"P2: /output2<br/>"
+        # f"P2: /output2<br/>"
         f"P6: /output6<br/>"
         f"Freight States: /outputF<br/>"
+        f"Dashboard Webpage: /html<br/>"
     )
     
 
@@ -35,25 +36,17 @@ def output1():
 
     # Query All Records in the the Database
     df1 = pd.read_sql("SELECT * FROM 'CFSPRELIM2017.CF1700P1'", conn)
+
+    for column in df1:
+      df1[column].replace(to_replace=["S", "Z"], value= "0", inplace=True)
     
     data1 = df1.to_dict()
 
+    for column, values in data1.items():
+        listvals = [x for x in values.values()]
+        data1[column] = listvals
+
     return data1
-
-
-@app.route("/output2")
-def output2():
-    database_path = "output.new.sqlite"
-    # Create an engine that can talk to the database
-    engine = create_engine(f"sqlite:///{database_path}")
-    conn = engine.connect()
-
-    # Query All Records in the the Database
-    df2 = pd.read_sql("SELECT * FROM 'CFSPRELIM2017.CF1700P2'", conn)
-    
-    data2 = df2.to_dict()
-
-    return data2
 
 
 @app.route("/output6")
@@ -65,9 +58,15 @@ def output6():
 
     # Query All Records in the the Database
     df6 = pd.read_sql("SELECT * FROM 'CFSPRELIM2017.CF1700P6'", conn)
-    
 
+    for column in df6:
+      df6[column].replace(to_replace=["S", "Z"], value= "0", inplace=True)
+    
     data6 = df6.to_dict()
+
+    for column, values in data6.items():
+        listvals = [x for x in values.values()]
+        data6[column] = listvals
 
     return data6
  
@@ -82,10 +81,21 @@ def outputF():
     # Query All Records in the the Database
     dfF = pd.read_sql("SELECT * FROM 'FreightStates'", conn)
     
-
+    for column in dfF:
+      dfF[column].replace(to_replace=["S", "Z"], value= "0", inplace=True)
+    
     dataF = dfF.to_dict()
 
+    for column, values in dataF.items():
+        listvals = [x for x in values.values()]
+        dataF[column] = listvals
+
     return dataF
+
+@app.route("/html")
+def html():
+
+    return render_template('index.html')
 
 if __name__ == "__main__":
     app.run(debug=True)
