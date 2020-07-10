@@ -165,11 +165,14 @@ function updateToolTip(chosenXAxis, chosenYAxis, circlesGroup) {
 
 //retrieve json data and execute everything below
 //Reminders: make another 3 datasets 
-d3.json("/outputF").then(function(censusData) {
+d3.json("/outputF").then(function(censusData, error) {
+    if (error) throw error;
 
+    console.log("census data");
     console.log(censusData);
 
     //parse data
+    
     censusData.forEach(function(data) {
         data.Within_ktons = +data.Within_ktons;
         data.InterstateIn_ktons = +data.InterstateIn_ktons;
@@ -179,7 +182,7 @@ d3.json("/outputF").then(function(censusData) {
         data.InterstateOut_MDollars = +data.InterstateOut_MDollars;
         data.State = data.State;
     });
-
+    console.log(censusData.Within_ktons);
     //create first linear scales
     var xLinearScale = xScale(censusData, chosenXAxis);
     var yLinearScale = yScale(censusData, chosenYAxis);
@@ -258,7 +261,7 @@ d3.json("/outputF").then(function(censusData) {
         .classed("aText", true)
         .classed("active", true)
         .attr("x", 0)
-        .attr("y", 0 - 20)
+        .attr("y", "-20")
         .attr("dy", "1em")
         .attr("transform", "rotate(-90)")
         .attr("value", "Within__MDollars")
@@ -268,7 +271,7 @@ d3.json("/outputF").then(function(censusData) {
         .classed("aText", true)
         .classed("inactive", true)
         .attr("x", 0)
-        .attr("y", 0 - 40)
+        .attr("y", "-40")
         .attr("dy", "1em")
         .attr("transform", "rotate(-90)")
         .attr("value", "InterstateIn_Mdollars")
@@ -278,7 +281,7 @@ d3.json("/outputF").then(function(censusData) {
         .classed("aText", true)
         .classed("inactive", true)
         .attr("x", 0)
-        .attr("y", 0 - 60)
+        .attr("y", "-60")
         .attr("dy", "1em")
         .attr("transform", "rotate(-90)")
         .attr("value", "InterstateOut_MDollars")

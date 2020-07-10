@@ -1,6 +1,3 @@
-# @TODO: P6, replace Z with 0;
-# P2: replace S or Z with 0,
-# P1: replace S or Z with 0,
 
 
 import sqlite3
@@ -42,11 +39,16 @@ def output1():
     
     data1 = df1.to_dict()
 
-    for column, values in data1.items():
-        listvals = [x for x in values.values()]
-        data1[column] = listvals
-
-    return data1
+    api_data1 = []
+    for column, data in data1.items():
+        values =  [x for x in data.values()]
+        for i in range(len(values)):
+            try:
+                api_data1[i][column] = values[i]
+            except:
+                api_data1.append({column:values[i]})
+   
+    return jsonify(api_data1)
 
 
 @app.route("/output6")
@@ -64,11 +66,16 @@ def output6():
     
     data6 = df6.to_dict()
 
-    for column, values in data6.items():
-        listvals = [x for x in values.values()]
-        data6[column] = listvals
-
-    return data6
+    api_data6 = []
+    for column, data in data6.items():
+        values =  [x for x in data.values()]
+        for i in range(len(values)):
+            try:
+                api_data6[i][column] = values[i]
+            except:
+                api_data6.append({column:values[i]})
+   
+    return jsonify(api_data6)
  
 
 @app.route("/outputF")
@@ -86,11 +93,16 @@ def outputF():
     
     dataF = dfF.to_dict()
 
-    for column, values in dataF.items():
-        listvals = [x for x in values.values()]
-        dataF[column] = listvals
-
-    return dataF
+    api_dataF = []
+    for column, data in dataF.items():
+        values =  [x for x in data.values()]
+        for i in range(len(values)):
+            try:
+                api_dataF[i][column] = values[i]
+            except:
+                api_dataF.append({column:values[i]})
+   
+    return jsonify(api_dataF)
 
 @app.route("/html")
 def html():
@@ -99,8 +111,4 @@ def html():
 
 if __name__ == "__main__":
     app.run(debug=True)
-
-
-
-
 
