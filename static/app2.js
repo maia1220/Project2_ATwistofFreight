@@ -1,22 +1,36 @@
-//set svg and chart dimensions
-//set svg dimensions
-var svgWidth = 560;
-var svgHeight = 236;
 
-//set borders in svg
-var margin = {
-    top: 50,
-    right: 50,
-    bottom: 50,
-    left: 50
-};
+//View 2
+//Madison's
 
+
+function makeResponsive() {
+
+    // if the SVG area isn't empty when the browser loads, remove it
+    // and replace it with a resized version of the chart
+    var svgArea = d3.select("body").select("svg");
+    if (!svgArea.empty()) {
+      svgArea.remove();
+    }
+  
+    // SVG wrapper dimensions are determined by the current width
+    // and height of the browser window.
+    var svgWidth = window.innerWidth;
+    var svgHeight = window.innerHeight;
+  
+    var margin = {
+      top: 50,
+      right: 100,
+      bottom: 150,
+      left: 150
+    };
+  
 //calculate chart height and width
 var width = svgWidth - margin.right - margin.left;
 var height = svgHeight - margin.top - margin.bottom;
 
 //append a div classed chart to the scatter element
 var chart = d3.select("#Chart1").append("div").classed("chart", true);
+
 
 //append an svg element to the chart with appropriate height and width
 var svg = chart.append("svg")
@@ -28,8 +42,8 @@ var chartGroup = svg.append("g")
     .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
 //initial Parameters
-var chosenXAxis = "Within_ktons";
-var chosenYAxis = "Within__MDollars";
+var chosenXAxis = "AVGMILE";
+var chosenYAxis = "TON";
 
 //function used for updating x-scale var upon clicking on axis label
 function xScale(censusData, chosenXAxis) {
@@ -97,53 +111,28 @@ function renderText(textGroup, newXScale, chosenXAxis, newYScale, chosenYAxis) {
 
     return textGroup;
 };
-//function to stylize x-axis values for tooltips
-function styleX(value, chosenXAxis) {
 
-    //stylize based on variable chosen
-    //within tonnage
-    if (chosenXAxis === 'Within_ktons') {
-        return `${value} 1000 t`;
-    }
-    //interstate inbound tonnage
-    else if (chosenXAxis === 'InterstateIn_ktons') {
-        return `${value} 1000 t`;
-    }
-    //interstate outbound tonnage
-    else {
-        return `${value} 1000 t`;
-    }
-};
 //# function used for updating circles group with new tooltip
 function updateToolTip(chosenXAxis, chosenYAxis, circlesGroup) {
 
     //#select x label
-    //Within tons
-    if (chosenXAxis === 'Within_ktons') {
-        var xLabel = "Within State Tonnage:";
+    //
+    if (chosenXAxis === 'AVGMILE') {
+        var xLabel = "Average Miles per Shipment (Number): ";
     }
-    //Inbound tons
-    else if (chosenXAxis === 'InterstateIn_ktons') {
-        var xLabel = "Inbound Tonnage:";
-    }
-    //Outbound tons
+    //
     else {
-        var xLabel = "Outbound Tonnage:";
+        var xLabel = "Ton-Miles (Millions): ";
     };
 
     //select y label
-    //percentage lacking healthcare
-    if (chosenYAxis === 'InterstateIn_Mdollars') {
-        var yLabel = "Interstate Inbound:"
+    //
+    if (chosenYAxis === 'TON') {
+        var yLabel = "Tons (Thousands): "
     }
-    //percentage obese
-    else if (chosenYAxis === 'InterstateOut_MDollars') {
-        var yLabel = "Interstate Outbound:"
-    }
-    //smoking percentage
-    // else (chosenYAxis === 'Within__MDollars') {
+    //
     else {
-        var yLabel = "Within State:"
+        var yLabel = "Value ($ Millions): "
     };
 
     //create tooltip
@@ -151,7 +140,7 @@ function updateToolTip(chosenXAxis, chosenYAxis, circlesGroup) {
         .attr("class", "d3-tip")
         .offset([-8, 0])
         .html(function(d) {
-            return (`${d.State}<br>${xLabel} ${styleX(d[chosenXAxis], chosenXAxis)}<br>${yLabel} ${d[chosenYAxis]}%`);
+            return (`${d.DMODE_LABEL}<br>${xLabel} ${d[chosenXAxis]}<br>${yLabel} ${d[chosenYAxis]}`);
         });
 
     circlesGroup.call(toolTip);
@@ -163,9 +152,10 @@ function updateToolTip(chosenXAxis, chosenYAxis, circlesGroup) {
     return circlesGroup;
 };
 
+
 //retrieve json data and execute everything below
 //Reminders: make another 3 datasets 
-d3.json("/outputF").then(function(censusData, error) {
+d3.json("/output1").then(function(censusData, error) {
     if (error) throw error;
 
     console.log("census data");
@@ -174,15 +164,16 @@ d3.json("/outputF").then(function(censusData, error) {
     //parse data
     
     censusData.forEach(function(data) {
-        data.Within_ktons = +data.Within_ktons;
-        data.InterstateIn_ktons = +data.InterstateIn_ktons;
-        data.InterstateOut_ktons = +data.InterstateOut_ktons;
-        data.Within__MDollars = +data.Within__MDollars;
-        data.InterstateIn_Mdollars = +data.InterstateIn_Mdollars;
-        data.InterstateOut_MDollars = +data.InterstateOut_MDollars;
-        data.State = data.State;
+        data.AVGMILE = +data.AVGMILE;
+        data.TMILE = +data.TMILE;
+        data.TON = +data.TON;
+        data.VAL = +data.VAL;
+        data.DMODE_LABEL = data.DMODE_LABEL;
     });
-    console.log(censusData.Within_ktons);
+
+
+
+
     //create first linear scales
     var xLinearScale = xScale(censusData, chosenXAxis);
     var yLinearScale = yScale(censusData, chosenYAxis);
@@ -208,10 +199,11 @@ d3.json("/outputF").then(function(censusData, error) {
         .enter()
         .append("circle")
         .classed("stateCircle", true)
+        .attr("class", "stateCircle")
         .attr("cx", d => xLinearScale(d[chosenXAxis]))
         .attr("cy", d => yLinearScale(d[chosenYAxis]))
-        .attr("r", 12)
-        .attr("opacity", ".5");
+        .attr("r", 10)
+        .attr("opacity", ".8");
 
     //append initial text
     var textGroup = chartGroup.selectAll(".stateText")
@@ -219,6 +211,7 @@ d3.json("/outputF").then(function(censusData, error) {
         .enter()
         .append("text")
         .classed("stateText", true)
+        .attr("class", "stateText")
         .attr("x", d => xLinearScale(d[chosenXAxis]))
         .attr("y", d => yLinearScale(d[chosenYAxis]))
         .attr("dy", 3)
@@ -229,63 +222,46 @@ d3.json("/outputF").then(function(censusData, error) {
     var xLabelsGroup = chartGroup.append("g")
         .attr("transform", `translate(${width / 2}, ${height + 20 + margin.top})`);
 
-    var Within_ktonsLabel = xLabelsGroup.append("text")
+    var AMLabel = xLabelsGroup.append("text")
         .classed("aText", true)
         .classed("active", true)
         .attr("x", 0)
-        .attr("y", 20)
-        .attr("value", "Within_ktons")
-        .text("Within-State Tonnage (1000t)");
+        .attr("y", -30)
+        .attr("value", "AVGMILE")
+        .text("Average Miles per Shipment (Number)");
 
-    var InterstateIn_ktonsLabel = xLabelsGroup.append("text")
+    var TMLabel = xLabelsGroup.append("text")
         .classed("aText", true)
         .classed("inactive", true)
         .attr("x", 0)
-        .attr("y", 40)
-        .attr("value", "InterstateIn_ktons")
-        .text("Inbound Tonnage (1000t)");
-
-    var InterstateOut_ktonsLabel = xLabelsGroup.append("text")
-        .classed("aText", true)
-        .classed("inactive", true)
-        .attr("x", 0)
-        .attr("y", 60)
-        .attr("value", "InterstateOut_ktons")
-        .text("Outbound Tonnage (1000t)");
+        .attr("y", 0)
+        .attr("value", "TMILE")
+        .text("Ton-Miles (Millions)");
 
     //create group for 3 y-axis labels
     var yLabelsGroup = chartGroup.append("g")
         .attr("transform", `translate(${0 - margin.left/4}, ${(height/2)})`);
 
-    var Within__MDollarsLabel = yLabelsGroup.append("text")
+    var TONLabel = yLabelsGroup.append("text")
         .classed("aText", true)
         .classed("active", true)
         .attr("x", 0)
-        .attr("y", "-20")
+        .attr("y", "-50")
         .attr("dy", "1em")
         .attr("transform", "rotate(-90)")
-        .attr("value", "Within__MDollars")
-        .text("Freight Within State (Mil $)");
+        .attr("value", "TON")
+        .text("Tons (Thousands)");
 
-    var InterstateIn_MdollarsLabel = yLabelsGroup.append("text")
+    var VALLabel = yLabelsGroup.append("text")
         .classed("aText", true)
         .classed("inactive", true)
         .attr("x", 0)
-        .attr("y", "-40")
+        .attr("y", "-70")
         .attr("dy", "1em")
         .attr("transform", "rotate(-90)")
-        .attr("value", "InterstateIn_Mdollars")
-        .text("Inbound Freight (Mil $)");
+        .attr("value", "VAL")
+        .text("Value ($ Millions)");
 
-    var InterstateOut_MDollarsLabel = yLabelsGroup.append("text")
-        .classed("aText", true)
-        .classed("inactive", true)
-        .attr("x", 0)
-        .attr("y", "-60")
-        .attr("dy", "1em")
-        .attr("transform", "rotate(-90)")
-        .attr("value", "InterstateOut_MDollars")
-        .text("Outbound Freight (Mil $)");
 
     //updateToolTip function with data
     var circlesGroup = updateToolTip(chosenXAxis, chosenYAxis, circlesGroup);
@@ -318,20 +294,15 @@ d3.json("/outputF").then(function(censusData, error) {
                 circlesGroup = updateToolTip(chosenXAxis, chosenYAxis, circlesGroup);
 
                 //change classes to change bold text
-                if (chosenXAxis === "Within_ktons") {
-                    Within_ktonsLabel.classed("active", true).classed("inactive", false);
-                    InterstateIn_ktonsLabel.classed("active", false).classed("inactive", true);
-                    InterstateOut_ktonsLabel.classed("active", false).classed("inactive", true);
-                }
-                else if (chosenXAxis === "InterstateIn_ktons") {
-                    Within_ktonsLabel.classed("active", false).classed("inactive", true);
-                    InterstateIn_ktonsLabel.classed("active", true).classed("inactive", false);
-                    InterstateOut_ktonsLabel.classed("active", false).classed("inactive", true);
+                if (chosenXAxis === "AVGMILE") {
+                    AMLabel.classed("active", true).classed("inactive", false);
+                    TMLabel.classed("active", false).classed("inactive", true);
+                    // InterstateOut_ktonsLabel.classed("active", false).classed("inactive", true);
                 }
                 else {
-                    Within_ktonsLabel.classed("active", false).classed("inactive", true);
-                    InterstateIn_ktonsLabel.classed("active", false).classed("inactive", true);
-                    InterstateOut_ktonsLabel.classed("active", true).classed("inactive", false);
+                    AMLabel.classed("active", false).classed("inactive", true);
+                    TMLabel.classed("active", true).classed("inactive", false);
+                    // InterstateOut_ktonsLabel.classed("active", true).classed("inactive", false);
                 }
             }
         });
@@ -364,25 +335,23 @@ d3.json("/outputF").then(function(censusData, error) {
             circlesGroup = updateToolTip(chosenXAxis, chosenYAxis, circlesGroup);
 
             //change classes to change bold text
-            if (chosenYAxis === "Within__MDollars") {
-                Within__MDollarsLabel.classed("active", true).classed("inactive", false);
-                InterstateIn_MdollarsLabel.classed("active", false).classed("inactive", true);
-                InterstateOut_MDollarsLabel.classed("active", false).classed("inactive", true);
-            }
-            else if (chosenYAxis === "InterstateIn_Mdollars") {
-                Within__MDollarsLabel.classed("active", false).classed("inactive", true);
-                InterstateIn_MdollarsLabel.classed("active", true).classed("inactive", false);
-                InterstateOut_MDollarsLabel.classed("active", false).classed("inactive", true);
+            if (chosenYAxis === "TON") {
+                TONLabel.classed("active", true).classed("inactive", false);
+                VALLabel.classed("active", false).classed("inactive", true);
+                // InterstateOut_MDollarsLabel.classed("active", false).classed("inactive", true);
             }
             else {
-                Within__MDollarsLabel.classed("active", false).classed("inactive", true);
-                InterstateIn_MdollarsLabel.classed("active", false).classed("inactive", true);
-                InterstateOut_MDollarsLabel.classed("active", true).classed("inactive", false);
+                TONLabel.classed("active", false).classed("inactive", true);
+                VALLabel.classed("active", true).classed("inactive", false);
+                // InterstateOut_MDollarsLabel.classed("active", true).classed("inactive", false);
             }
         }
     });
     
-
-
-    
 });
+};
+// When the browser loads, makeResponsive() is called.
+makeResponsive();
+
+// When the browser window is resized, responsify() is called.
+d3.select(window).on("resize", makeResponsive);

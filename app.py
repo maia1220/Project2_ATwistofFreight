@@ -109,6 +109,27 @@ def html():
 
     return render_template('index.html')
 
+@app.route("/view1")
+def v1():
+
+    return render_template('view1.html')
+
+@app.route("/view2")
+def v2():
+
+    return render_template('view2.html')
+
+@app.route("/view3")
+def v3():
+
+    return render_template('view3.html')
+
+@app.route("/view4")
+def v4():
+
+    return render_template('view4.html')
+
+
 if __name__ == "__main__":
     app.run(debug=True)
 
